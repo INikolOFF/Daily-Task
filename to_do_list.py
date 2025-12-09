@@ -6,6 +6,7 @@
 
 tasks = []  # Списък със задачи
 
+
 # Функция за зареждане на задачите от файл
 def load_tasks():
     try:
@@ -15,11 +16,13 @@ def load_tasks():
     except FileNotFoundError:
         pass  # Ако файлът не съществува – просто продължаваме
 
+1
 # Функция за записване на задачите във файла
 def save_tasks():
     with open("tasks.txt", "w") as file:  # Отваряме файла за запис
         for task in tasks:
             file.write(task + "\n")  # Всяка задача на нов ред
+
 
 # Показване на всички задачи
 def show_tasks():
@@ -27,6 +30,7 @@ def show_tasks():
         print("No tasks yet.")
     for i, task in enumerate(tasks, 1):
         print(f"{i}. {task}")
+
 
 # Зареждаме задачите при стартиране
 load_tasks()
