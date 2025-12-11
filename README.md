@@ -1,6 +1,7 @@
-his To-Do list project practices functions, lists and tuples, loops, 
+This To-Do list project practices functions, lists and tuples, loops, 
 conditional statements, user input/output, file handling, error handling, 
 and menu-driven program logic.
+•
 
 # Features:
 • Add tasks with deadlines
