@@ -1,38 +1,31 @@
-# Този малък To-Do списък е направен с учебна цел.
-# Целта на програмата е да упражни работата с функции, списъци,
-# цикли, вход/изход от потребителя и работа с файлове.
-# Подходящ е за начинаещи, които искат да свикнат със структурата
-# на прост Python проект и логиката на основните операции.
+tasks = []  # List of tasks, each as a tuple (task_name, deadline)
 
-tasks = []  # Списък със задачи
-
-
-# Функция за зареждане на задачите от файл
+# Function to load tasks from a file
 def load_tasks():
     try:
-        with open("tasks.txt", "r") as file:  # Отваряме файла за четене
+        with open("tasks.txt", "r") as file:  # Open file for reading
             for line in file:
-                tasks.append(line.strip())  # Добавяме всяка задача без нов ред
+                if ";" in line:
+                    # Split each line into task name and deadline
+                    name, deadline = line.strip().split(";", 1)
+                    tasks.append((name, deadline))
     except FileNotFoundError:
-        pass  # Ако файлът не съществува – просто продължаваме
+        pass  # If file does not exist, continue without error
 
-1
-# Функция за записване на задачите във файла
+# Function to save tasks to a file
 def save_tasks():
-    with open("tasks.txt", "w") as file:  # Отваряме файла за запис
-        for task in tasks:
-            file.write(task + "\n")  # Всяка задача на нов ред
+    with open("tasks.txt", "w") as file:  # Open file for writing
+        for task, deadline in tasks:
+            file.write(f"{task};{deadline}\n")  # Write task and deadline separated by ;
 
-
-# Показване на всички задачи
+# Function to display all tasks with deadlines
 def show_tasks():
     if not tasks:
         print("No tasks yet.")
-    for i, task in enumerate(tasks, 1):
-        print(f"{i}. {task}")
+    for i, (task, deadline) in enumerate(tasks, 1):
+        print(f"{i}. {task} (Deadline: {deadline})")
 
-
-# Зареждаме задачите при стартиране
+# Load tasks when program starts
 load_tasks()
 
 while True:
@@ -44,18 +37,19 @@ while True:
 
     elif choice == "2":
         task = input("Enter a new task: ")
-        tasks.append(task)
-        save_tasks()  # Записваме след добавяне
+        deadline = input("Enter deadline (e.g., YYYY-MM-DD): ")
+        tasks.append((task, deadline))  # Add task with deadline
+        save_tasks()  # Save after adding
 
     elif choice == "3":
         show_tasks()
         index = int(input("Enter the task number to remove: "))
         if 0 < index <= len(tasks):
-            tasks.pop(index - 1)
-            save_tasks()  # Записваме след триене
+            tasks.pop(index - 1)  # Remove the selected task
+            save_tasks()  # Save after removal
 
     elif choice == "4":
-        save_tasks()  # Записваме последно преди изход
+        save_tasks()  # Save before exiting
         break
 
     else:
