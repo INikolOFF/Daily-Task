@@ -25,11 +25,24 @@ def show_tasks():
     for i, (task, deadline) in enumerate(tasks, 1):
         print(f"{i}. {task} (Deadline: {deadline})")
 
+# NEW FUNCTION: search tasks by keyword
+def search_tasks():
+    keyword = input("Enter keyword to search: ").lower()
+    found = False
+
+    for i, (task, deadline) in enumerate(tasks, 1):
+        if keyword in task.lower():
+            print(f"{i}. {task} (Deadline: {deadline})")
+            found = True
+
+    if not found:
+        print("No matching tasks found.")
+
 # Load tasks when program starts
 load_tasks()
 
 while True:
-    print("\n1. Show tasks\n2. Add task\n3. Remove task\n4. Exit")
+    print("\n1. Show tasks\n2. Add task\n3. Remove task\n4. Search task\n5. Exit")
     choice = input("Choose an option: ")
 
     if choice == "1":
@@ -49,6 +62,9 @@ while True:
             save_tasks()  # Save after removal
 
     elif choice == "4":
+        search_tasks()
+
+    elif choice == "5":
         save_tasks()  # Save before exiting
         break
 
