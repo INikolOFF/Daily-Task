@@ -22,6 +22,4 @@ and menu-driven program logic.
 
 • Mark tasks as completed
 
-• Search tasks
-
 • Notifications/reminders
