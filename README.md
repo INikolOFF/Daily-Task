@@ -13,6 +13,8 @@ and menu-driven program logic.
 
 • Search tasks
 
+• Simple GUI
+
 # Future features:
 • Edit tasks
 
