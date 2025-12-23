@@ -1,3 +1,6 @@
+import tkinter as tk
+from tkinter import messagebox
+
 tasks = []  # List of tasks, each as a tuple (task_name, deadline)
 
 # Function to load tasks from a file
@@ -18,55 +21,70 @@ def save_tasks():
         for task, deadline in tasks:
             file.write(f"{task};{deadline}\n")  # Write task and deadline separated by ;
 
-# Function to display all tasks with deadlines
-def show_tasks():
-    if not tasks:
-        print("No tasks yet.")
-    for i, (task, deadline) in enumerate(tasks, 1):
-        print(f"{i}. {task} (Deadline: {deadline})")
-
-# NEW FUNCTION: search tasks by keyword
-def search_tasks():
-    keyword = input("Enter keyword to search: ").lower()
-    found = False
-
-    for i, (task, deadline) in enumerate(tasks, 1):
-        if keyword in task.lower():
-            print(f"{i}. {task} (Deadline: {deadline})")
-            found = True
-
-    if not found:
-        print("No matching tasks found.")
-
 # Load tasks when program starts
 load_tasks()
 
-while True:
-    print("\n1. Show tasks\n2. Add task\n3. Remove task\n4. Search task\n5. Exit")
-    choice = input("Choose an option: ")
+# ---------------- GUI PART ----------------
 
-    if choice == "1":
-        show_tasks()
+def start_gui():
+    window = tk.Tk()
+    window.title("Simple Task Manager")
+    window.geometry("400x350")
 
-    elif choice == "2":
-        task = input("Enter a new task: ")
-        deadline = input("Enter deadline (e.g., YYYY-MM-DD): ")
-        tasks.append((task, deadline))  # Add task with deadline
-        save_tasks()  # Save after adding
+    title = tk.Label(window, text="Task Manager", font=("Arial", 16))
+    title.pack(pady=10)
 
-    elif choice == "3":
-        show_tasks()
-        index = int(input("Enter the task number to remove: "))
-        if 0 < index <= len(tasks):
-            tasks.pop(index - 1)  # Remove the selected task
-            save_tasks()  # Save after removal
+    task_entry = tk.Entry(window, width=35)
+    task_entry.pack(pady=5)
+    task_entry.insert(0, "Task name")
 
-    elif choice == "4":
-        search_tasks()
+    deadline_entry = tk.Entry(window, width=35)
+    deadline_entry.pack(pady=5)
+    deadline_entry.insert(0, "Deadline (YYYY-MM-DD)")
 
-    elif choice == "5":
-        save_tasks()  # Save before exiting
-        break
+    def add_task_gui():
+        task = task_entry.get()
+        deadline = deadline_entry.get()
 
-    else:
-        print("Invalid choice!")
+        if task and deadline:
+            tasks.append((task, deadline))
+            save_tasks()
+            messagebox.showinfo("Success", "Task added!")
+            task_entry.delete(0, tk.END)
+            deadline_entry.delete(0, tk.END)
+        else:
+            messagebox.showerror("Error", "Fill all fields!")
+
+    def show_tasks_gui():
+        if not tasks:
+            messagebox.showinfo("Tasks", "No tasks yet.")
+        else:
+            text = ""
+            for i, (task, deadline) in enumerate(tasks, 1):
+                text += f"{i}. {task} (Deadline: {deadline})\n"
+            messagebox.showinfo("Tasks", text)
+
+    def search_tasks_gui():
+        keyword = task_entry.get().lower()
+        results = ""
+
+        for i, (task, deadline) in enumerate(tasks, 1):
+            if keyword in task.lower():
+                results += f"{i}. {task} ({deadline})\n"
+
+        if results:
+            messagebox.showinfo("Search results", results)
+        else:
+            messagebox.showinfo("Search results", "No matching tasks found.")
+
+    tk.Button(window, text="Add Task", width=20, command=add_task_gui).pack(pady=5)
+    tk.Button(window, text="Show Tasks", width=20, command=show_tasks_gui).pack(pady=5)
+    tk.Button(window, text="Search Task", width=20, command=search_tasks_gui).pack(pady=5)
+    tk.Button(window, text="Exit", width=20, command=window.destroy).pack(pady=10)
+
+    window.mainloop()
+
+
+# Start GUI only if this file is run directly
+if __name__ == "__main__":
+    start_gui()
