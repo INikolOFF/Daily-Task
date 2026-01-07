@@ -14,7 +14,7 @@ and menu-driven program logic.
 
 • Search tasks
 
-• Simple GUI usage
+• Simple GUI usage !
 
 # Future features:
 • Edit tasks
