@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
+from datetime import datetime
 
 tasks = []  # List of tasks, each as a tuple (task_name, deadline)
+reminded_tasks = set()  # NEW: keep tasks already reminded
 
 # Function to load tasks from a file
 def load_tasks():
@@ -76,6 +78,24 @@ def start_gui():
             messagebox.showinfo("Search results", results)
         else:
             messagebox.showinfo("Search results", "No matching tasks found.")
+
+    # ---------------- NOTIFICATIONS / REMINDERS ----------------
+    def check_deadlines():
+        today = datetime.now().strftime("%Y-%m-%d")
+
+        for task, deadline in tasks:
+            if deadline == today and (task, deadline) not in reminded_tasks:
+                messagebox.showwarning(
+                    "Reminder",
+                    f"⚠️ Task due today:\n\n{task}"
+                )
+                reminded_tasks.add((task, deadline))
+
+        # Check again after 60 seconds
+        window.after(60000, check_deadlines)
+
+    # Start reminder checker
+    check_deadlines()
 
     tk.Button(window, text="Add Task", width=20, command=add_task_gui).pack(pady=5)
     tk.Button(window, text="Show Tasks", width=20, command=show_tasks_gui).pack(pady=5)
