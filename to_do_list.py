@@ -1,110 +1,121 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, scrolledtext
 from datetime import datetime
+import os
 
-tasks = []  # List of tasks, each as a tuple (task_name, deadline)
-reminded_tasks = set()  # NEW: keep tasks already reminded
+tasks = []  # List of tasks as (task_name, deadline)
+reminded_tasks = set()
+TASK_FILE = "tasks.txt"
 
-# Function to load tasks from a file
 def load_tasks():
-    try:
-        with open("tasks.txt", "r") as file:  # Open file for reading
+    if os.path.exists(TASK_FILE):
+        with open(TASK_FILE, "r") as file:
             for line in file:
                 if ";" in line:
-                    # Split each line into task name and deadline
                     name, deadline = line.strip().split(";", 1)
                     tasks.append((name, deadline))
-    except FileNotFoundError:
-        pass  # If file does not exist, continue without error
 
-# Function to save tasks to a file
 def save_tasks():
-    with open("tasks.txt", "w") as file:  # Open file for writing
+    with open(TASK_FILE, "w") as file:
         for task, deadline in tasks:
-            file.write(f"{task};{deadline}\n")  # Write task and deadline separated by ;
+            file.write(f"{task};{deadline}\n")
 
-# Load tasks when program starts
 load_tasks()
-
-# ---------------- GUI PART ----------------
 
 def start_gui():
     window = tk.Tk()
-    window.title("Simple Task Manager")
-    window.geometry("400x350")
+    window.title("Enhanced Task Manager")
+    window.geometry("500x500")
+    window.resizable(False, False)
 
-    title = tk.Label(window, text="Task Manager", font=("Arial", 16))
-    title.pack(pady=10)
+    tk.Label(window, text="Task Manager", font=("Arial", 18, "bold")).pack(pady=10)
 
-    task_entry = tk.Entry(window, width=35)
+    task_entry = tk.Entry(window, width=35, font=("Arial", 12))
     task_entry.pack(pady=5)
     task_entry.insert(0, "Task name")
 
-    deadline_entry = tk.Entry(window, width=35)
+    deadline_entry = tk.Entry(window, width=35, font=("Arial", 12))
     deadline_entry.pack(pady=5)
     deadline_entry.insert(0, "Deadline (YYYY-MM-DD)")
 
-    def add_task_gui():
-        task = task_entry.get()
-        deadline = deadline_entry.get()
+    task_list_frame = tk.Frame(window)
+    task_list_frame.pack(pady=10, fill="both", expand=True)
 
-        if task and deadline:
-            tasks.append((task, deadline))
-            save_tasks()
-            messagebox.showinfo("Success", "Task added!")
-            task_entry.delete(0, tk.END)
-            deadline_entry.delete(0, tk.END)
-        else:
+    task_list = scrolledtext.ScrolledText(task_list_frame, width=60, height=15, font=("Consolas", 11))
+    task_list.pack()
+
+    def refresh_task_list():
+        task_list.delete("1.0", tk.END)
+        today = datetime.now().strftime("%Y-%m-%d")
+        for i, (task, deadline) in enumerate(tasks, 1):
+            if deadline == today:
+                task_list.insert(tk.END, f"{i}. ⚠️ {task} (Deadline: {deadline})\n")
+            else:
+                task_list.insert(tk.END, f"{i}. {task} (Deadline: {deadline})\n")
+
+    def add_task():
+        task = task_entry.get().strip()
+        deadline = deadline_entry.get().strip()
+        try:
+            datetime.strptime(deadline, "%Y-%m-%d")
+        except ValueError:
+            messagebox.showerror("Error", "Invalid date format! Use YYYY-MM-DD")
+            return
+
+        if not task or not deadline:
             messagebox.showerror("Error", "Fill all fields!")
+            return
 
-    def show_tasks_gui():
-        if not tasks:
-            messagebox.showinfo("Tasks", "No tasks yet.")
+        tasks.append((task, deadline))
+        save_tasks()
+        task_entry.delete(0, tk.END)
+        deadline_entry.delete(0, tk.END)
+        refresh_task_list()
+
+    def delete_task():
+        index_str = task_entry.get().strip()
+        if not index_str.isdigit():
+            messagebox.showerror("Error", "Enter task number to delete in Task Name field")
+            return
+        index = int(index_str) - 1
+        if 0 <= index < len(tasks):
+            task_name, _ = tasks.pop(index)
+            save_tasks()
+            messagebox.showinfo("Deleted", f"Task '{task_name}' deleted")
+            refresh_task_list()
         else:
-            text = ""
-            for i, (task, deadline) in enumerate(tasks, 1):
-                text += f"{i}. {task} (Deadline: {deadline})\n"
-            messagebox.showinfo("Tasks", text)
+            messagebox.showerror("Error", "Invalid task number")
 
-    def search_tasks_gui():
-        keyword = task_entry.get().lower()
+    def search_task():
+        keyword = task_entry.get().strip().lower()
+        if not keyword:
+            messagebox.showerror("Error", "Enter keyword in Task Name field")
+            return
         results = ""
-
         for i, (task, deadline) in enumerate(tasks, 1):
             if keyword in task.lower():
-                results += f"{i}. {task} ({deadline})\n"
-
+                results += f"{i}. {task} (Deadline: {deadline})\n"
         if results:
             messagebox.showinfo("Search results", results)
         else:
-            messagebox.showinfo("Search results", "No matching tasks found.")
+            messagebox.showinfo("Search results", "No matching tasks found")
 
-    # ---------------- NOTIFICATIONS / REMINDERS ----------------
     def check_deadlines():
         today = datetime.now().strftime("%Y-%m-%d")
-
         for task, deadline in tasks:
             if deadline == today and (task, deadline) not in reminded_tasks:
-                messagebox.showwarning(
-                    "Reminder",
-                    f"⚠️ Task due today:\n\n{task}"
-                )
+                messagebox.showwarning("Reminder", f"⚠️ Task due today:\n\n{task}")
                 reminded_tasks.add((task, deadline))
-
-        # Check again after 60 seconds
         window.after(60000, check_deadlines)
 
-    # Start reminder checker
+    tk.Button(window, text="Add Task", width=20, command=add_task, bg="#27ae60", fg="white").pack(pady=3)
+    tk.Button(window, text="Delete Task", width=20, command=delete_task, bg="#e74c3c", fg="white").pack(pady=3)
+    tk.Button(window, text="Search Task", width=20, command=search_task, bg="#3498db", fg="white").pack(pady=3)
+    tk.Button(window, text="Exit", width=20, command=window.destroy, bg="#95a5a6", fg="white").pack(pady=10)
+
+    refresh_task_list()
     check_deadlines()
-
-    tk.Button(window, text="Add Task", width=20, command=add_task_gui).pack(pady=5)
-    tk.Button(window, text="Show Tasks", width=20, command=show_tasks_gui).pack(pady=5)
-    tk.Button(window, text="Search Task", width=20, command=search_tasks_gui).pack(pady=5)
-    tk.Button(window, text="Exit", width=20, command=window.destroy).pack(pady=10)
-
     window.mainloop()
 
-
-# Start GUI only if this file is run directly
 if __name__ == "__main__":
     start_gui()
