@@ -4,23 +4,22 @@ and menu-driven program logic.
 •
 
 # Features:
-• Add tasks with deadlines
-
-• Show all tasks
-
-• Remove tasks
-
-• Save tasks to a file
-
-• Search tasks
-
-• Simple GUI usage !
+    •       Add tasks with deadlines
+    •       Show all tasks
+    •       Remove tasks
+    •       Save tasks to a file
+    •       Search tasks
+    •       Simple GUI usage !
+	•	JSON-safe storage
+	•	Duplicate protection
+	•	Keybord shortcuts
+	•	Persistent reminders
+	•	Overdue detection
+	•	Clean data structure
 
 # Future features:
-• Edit tasks
 
-• Sort tasks by deadline
-
-• Mark tasks as completed
-
-• Notifications/reminders
+•  Edit tasks
+•  Sort tasks by deadline
+•  Mark tasks as completed
+•  Notifications/reminders
